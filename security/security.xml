@@ -5,4 +5,17 @@
         <field name="comment">Only users in this group can export leads. Everyone else is blocked.</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('base.group_allow_export'))]"/>
     </record>
+
+    <record id="group_export_approver" model="res.groups">
+        <field name="name">Lead Export Approver</field>
+        <field name="comment">Can see pending export requests and show the approval code. Managed from Lead Export > Approvers.</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="rule_export_request_own" model="ir.rule">
+        <field name="name">Lead export request: own requests (admin sees all)</field>
+        <field name="model_id" ref="model_otm_lead_export_request"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if (user.has_group('base.group_system') or user.has_group('otm_lead_export_guard.group_export_approver')) else [('user_id', '=', user.id)]</field>
+    </record>
 </odoo>

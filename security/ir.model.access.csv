@@ -1,2 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_otm_lead_export_log_admin,otm.lead.export.log admin,model_otm_lead_export_log,base.group_system,1,0,0,1
+access_otm_lead_export_approver_admin,otm.lead.export.approver admin,model_otm_lead_export_approver,base.group_system,1,1,1,1
+access_otm_lead_export_request_admin,otm.lead.export.request admin,model_otm_lead_export_request,base.group_system,1,0,0,1
+access_otm_lead_export_request_user,otm.lead.export.request user,model_otm_lead_export_request,group_lead_export,1,0,0,0
+access_otm_lead_export_reqwiz_user,otm.lead.export.request.wizard user,model_otm_lead_export_request_wizard,group_lead_export,1,1,1,1
+access_otm_lead_export_unlockwiz_user,otm.lead.export.unlock.wizard user,model_otm_lead_export_unlock_wizard,group_lead_export,1,1,1,1
+access_otm_lead_export_request_approver,otm.lead.export.request approver,model_otm_lead_export_request,group_export_approver,1,0,0,0

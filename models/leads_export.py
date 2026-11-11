@@ -13,35 +13,29 @@ class LeadsLogicExportGuard(models.Model):
     @api.model
     def _user_can_export(self):
         user = self.env.user
-        return user.id == SUPERUSER_ID or user.has_group(GROUP)
+        if user.id == SUPERUSER_ID:
+            return True
+        # Layer 1: admin permission. Layer 2: an approved, unexpired code.
+        return bool(user.has_group(GROUP) and self.env['otm.lead.export.request']._active_unlock(user))
 
     def _check_can_export(self):
         if not self._user_can_export():
             self._otm_log_export(False, 0)
             raise AccessError(_(
-                "Lead export is disabled. Ask the administrator to grant you "
-                "'Lead Export Allowed' access."))
+                "Lead export is locked. Open Lead Export > Request Export "
+                "and enter the Director's approval code."))
         return True
 
     def _otm_log_export(self, allowed, nfields):
-        try:
-            with self.pool.cursor() as cr:
-                env = api.Environment(cr, SUPERUSER_ID, {})
-                env['otm.lead.export.log'].create({
-                    'user_id': self.env.uid,
-                    'model': self._name,
-                    'record_count': len(self),
-                    'field_count': nfields,
-                    'result': 'allowed' if allowed else 'blocked',
-                })
-        except Exception:
-            _logger.exception("Could not write lead export log")
+        self.env['otm.lead.export.log'].log_event(
+            'allowed' if allowed else 'blocked', model=self._name,
+            records=len(self), nfields=nfields)
 
     def export_data(self, fields_to_export):
         allowed = self._user_can_export()
         self._otm_log_export(allowed, len(fields_to_export or []))
         if not allowed:
             raise AccessError(_(
-                "Lead export is disabled. Ask the administrator to grant you "
-                "'Lead Export Allowed' access."))
+                "Lead export is locked. Open Lead Export > Request Export "
+                "and enter the Director's approval code."))
         return super().export_data(fields_to_export)
