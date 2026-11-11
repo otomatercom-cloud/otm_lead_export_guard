@@ -10,8 +10,10 @@ Problem: lead export is blocked for everyone, with a controlled, audited, tempor
 6. Admin without a code is blocked. Import is unaffected.
 7. Every step is logged: requested, code shown, unlocked, wrong code, locked, expired, exported, blocked.
 
+7b. Optional: approvers also get the code by email through an admin-selected outgoing mail server.
+
 ## Out of scope
-Email delivery, per-export count limits, file watermarking.
+Per-export count limits, file watermarking.
 
 ## Open questions (assumptions taken)
 - Approvers are Odoo users listed under Lead Export > Approvers (assumed).

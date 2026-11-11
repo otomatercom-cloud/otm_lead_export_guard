@@ -1,7 +1,7 @@
 {
     'name': 'Lead Export Guard',
-    'version': '19.0.1.2.0',
-    'summary': 'Lead export needs admin permission plus a Director-approved one-time code (shown in-app to approvers), valid for a limited time. Every step is logged.',
+    'version': '19.0.1.3.0',
+    'summary': 'Lead export needs admin permission plus a Director-approved one-time code (shown in-app, optional mail to approvers), valid for a limited time. Every step is logged.',
     'author': 'Otomater',
     'website': 'https://otomater.com',
     'license': 'OPL-1',
@@ -10,6 +10,7 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
+        'data/setting.xml',
         'views/export_guard_views.xml',
         'data/cron.xml',
     ],

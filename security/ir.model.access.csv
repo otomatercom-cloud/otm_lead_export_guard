@@ -6,3 +6,4 @@ access_otm_lead_export_request_user,otm.lead.export.request user,model_otm_lead_
 access_otm_lead_export_reqwiz_user,otm.lead.export.request.wizard user,model_otm_lead_export_request_wizard,group_lead_export,1,1,1,1
 access_otm_lead_export_unlockwiz_user,otm.lead.export.unlock.wizard user,model_otm_lead_export_unlock_wizard,group_lead_export,1,1,1,1
 access_otm_lead_export_request_approver,otm.lead.export.request approver,model_otm_lead_export_request,group_export_approver,1,0,0,0
+access_otm_lead_export_setting_admin,otm.lead.export.setting admin,model_otm_lead_export_setting,base.group_system,1,1,0,0

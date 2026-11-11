@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import secrets
+import logging
 from datetime import timedelta
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -13,6 +14,9 @@ CODE_VALID_MINUTES = 10
 MAX_ATTEMPTS = 3
 WINDOW_CHOICES = [('5', '5 minutes'), ('10', '10 minutes'), ('15', '15 minutes'),
                   ('20', '20 minutes'), ('30', '30 minutes')]
+
+
+_logger = logging.getLogger(__name__)
 
 
 def _notify(message, kind='success', close=False):
@@ -72,9 +76,52 @@ class OtmLeadExportRequest(models.Model):
         code = f'{secrets.randbelow(10 ** 6):06d}'
         req.write({'code_hash': req._hash(code),
                    'code_enc': req._fernet().encrypt(code.encode()).decode()})
+        mail_status = req._send_code_mail(code, approvers)
         self.env['otm.lead.export.log'].log_event(
-            'requested', user_id=user.id, note=(reason or '')[:200])
+            'requested', user_id=user.id, note=f"{(reason or '')[:150]} | mail: {mail_status}")
         return req
+
+    def _send_code_mail(self, code, approvers):
+        """Optional mail copy of the code. The mail record is deleted right after sending,
+        so the code never stays in the mail queue. Never raises."""
+        self.ensure_one()
+        cfg = self.env['otm.lead.export.setting'].get_setting()
+        if not cfg.mail_enabled or not cfg.mail_server_id:
+            return 'off'
+        emails = [e for e in approvers.mapped('user_id.partner_id.email') if e]
+        if not emails:
+            return 'no approver email'
+        server = cfg.mail_server_id
+        sender = server.from_filter if server.from_filter and '@' in server.from_filter else (
+            server.smtp_user if '@' in (server.smtp_user or '') else self.env.company.email)
+        reason = (self.reason or '').replace('<', '&lt;')
+        body = _(
+            "<p><b>%(user)s</b> has asked to export lead data.</p>"
+            "<p>Reason: %(reason)s<br/>Export window: %(minutes)s minutes</p>"
+            "<p>Approval code: <b style='font-size:20px;letter-spacing:3px'>%(code)s</b></p>"
+            "<p>Share this code with the user only if you approve. "
+            "It is valid for %(valid)s minutes and works once.</p>",
+            user=self.user_id.name, reason=reason, minutes=self.minutes,
+            code=code, valid=CODE_VALID_MINUTES)
+        mail = False
+        status = 'failed'
+        try:
+            mail = self.env['mail.mail'].sudo().create({
+                'subject': _("Lead export approval code - %s", self.user_id.name),
+                'body_html': body, 'email_to': ', '.join(emails),
+                'email_from': sender, 'mail_server_id': server.id, 'auto_delete': True,
+            })
+            mail.send(raise_exception=False)
+            status = 'sent' if mail.state == 'sent' else 'failed'
+        except Exception:
+            _logger.exception("Lead export code mail failed")
+        finally:
+            try:
+                if mail:
+                    mail.unlink()
+            except Exception:
+                _logger.exception("Could not delete code mail")
+        return status
 
     def action_show_code(self):
         """Approver-only: show the code once, then wipe it."""

@@ -7,3 +7,5 @@
 - Cron every minute expires codes and windows.
 - Security: global record rule (own requests; admin and approvers see all). Menu root visible to admin, allowed group, approvers.
 - Risk: stale access cache after install -> restart the service.
+
+- Optional mail (v1.3.0): code mailed to approvers' Odoo user email through the server chosen in Lead Export > Settings (default Gmail, changeable any time). The mail record is deleted right after sending so no plaintext stays in the queue; failure never blocks the request; in-app Show code is always available.

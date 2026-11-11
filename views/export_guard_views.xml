@@ -130,13 +130,35 @@
         <field name="domain">[('state', '=', 'sent'), ('user_id', '!=', uid)]</field>
     </record>
 
+    <record id="view_export_setting_form" model="ir.ui.view">
+        <field name="name">otm.lead.export.setting.form</field>
+        <field name="model">otm.lead.export.setting</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet>
+                    <group string="Approval code mail">
+                        <field name="mail_enabled"/>
+                        <field name="mail_server_id" invisible="not mail_enabled" options="{'no_create': True}"/>
+                    </group>
+                    <p class="text-muted">The code always shows under Lead Export &gt; Approvals. Mail goes to the Odoo user email of each approver, never to the requester. The mail record is deleted right after sending.</p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_export_setting" model="ir.actions.act_window">
+        <field name="name">Export Settings</field>
+        <field name="res_model">otm.lead.export.setting</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="setting_default"/>
+    </record>
+
     <!-- Wizards -->
     <record id="view_export_request_wizard_form" model="ir.ui.view">
         <field name="name">otm.lead.export.request.wizard.form</field>
         <field name="model">otm.lead.export.request.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <p class="text-muted">Your Director will see a one-time code in their Odoo. Ask them for it, then enter it on the next screen.</p>
+                <p class="text-muted">Your Director will get a one-time code (in Odoo and by email). Ask them for it, then enter it on the next screen.</p>
                 <group>
                     <field name="reason" placeholder="Why do you need this export?"/>
                     <field name="minutes"/>
@@ -184,6 +206,8 @@
               action="action_lead_export_access" groups="base.group_system" sequence="3"/>
     <menuitem id="menu_lead_export_approvers" name="Approvers" parent="menu_lead_export_root"
               action="action_export_approver" groups="base.group_system" sequence="4"/>
+    <menuitem id="menu_lead_export_setting" name="Settings" parent="menu_lead_export_root"
+              action="action_export_setting" groups="base.group_system" sequence="6"/>
     <menuitem id="menu_lead_export_log" name="Export Log" parent="menu_lead_export_root"
               action="action_lead_export_log" groups="base.group_system" sequence="5"/>
 </odoo>
