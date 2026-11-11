@@ -1,6 +1,6 @@
 {
     'name': 'Lead Export Guard',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.3.1',
     'summary': 'Lead export needs admin permission plus a Director-approved one-time code (shown in-app, optional mail to approvers), valid for a limited time. Every step is logged.',
     'author': 'Otomater',
     'website': 'https://otomater.com',

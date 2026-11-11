@@ -105,16 +105,22 @@ class OtmLeadExportRequest(models.Model):
             code=code, valid=CODE_VALID_MINUTES)
         mail = False
         status = 'failed'
+        to = ', '.join(emails)
         try:
             mail = self.env['mail.mail'].sudo().create({
                 'subject': _("Lead export approval code - %s", self.user_id.name),
-                'body_html': body, 'email_to': ', '.join(emails),
+                'body_html': body, 'email_to': to,
                 'email_from': sender, 'mail_server_id': server.id, 'auto_delete': True,
             })
             mail.send(raise_exception=False)
-            status = 'sent' if mail.state == 'sent' else 'failed'
-        except Exception:
+            mail.invalidate_recordset(['state', 'failure_reason'])
+            if mail.state == 'sent':
+                status = f'sent to {to}'
+            else:
+                status = f'failed ({mail.state}) to {to}: {(mail.failure_reason or "no reason")[:150]}'
+        except Exception as exc:
             _logger.exception("Lead export code mail failed")
+            status = f'failed to {to}: {str(exc)[:150]}'
         finally:
             try:
                 if mail:
