@@ -184,7 +184,7 @@
                 <field name="request_id" invisible="1"/>
                 <p class="text-muted">Enter the 6-digit code the Director gave you. The code is valid for 10 minutes and works once.</p>
                 <group>
-                    <field name="code" placeholder="123456" autocomplete="off"/>
+                    <field name="code" placeholder="123456" autocomplete="off" required="1"/>
                 </group>
                 <footer>
                     <button name="action_unlock" type="object" string="Unlock export" class="btn-primary"/>

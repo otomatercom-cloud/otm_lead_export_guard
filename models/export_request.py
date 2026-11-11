@@ -110,7 +110,7 @@ class OtmLeadExportRequest(models.Model):
             mail = self.env['mail.mail'].sudo().create({
                 'subject': _("Lead export approval code - %s", self.user_id.name),
                 'body_html': body, 'email_to': to,
-                'email_from': sender, 'mail_server_id': server.id, 'auto_delete': True,
+                'email_from': sender, 'mail_server_id': server.id, 'auto_delete': False,
             })
             mail.send(raise_exception=False)
             mail.invalidate_recordset(['state', 'failure_reason'])
@@ -214,10 +214,12 @@ class OtmLeadExportUnlockWizard(models.TransientModel):
     _description = 'Enter Lead Export Code'
 
     request_id = fields.Many2one('otm.lead.export.request', required=True, readonly=True)
-    code = fields.Char(string='Approval code', required=True)
+    code = fields.Char(string='Approval code')
 
     def action_unlock(self):
         self.ensure_one()
+        if not (self.code or '').strip():
+            return _notify(_("Enter the 6-digit code first."), 'warning')
         result = self.request_id.verify_code(self.code)
         self.code = False
         return result
